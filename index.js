@@ -7,35 +7,22 @@ const { connection } = require("./db.connect");
 
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://event-frontend-six-kappa.vercel.app"
-];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: [
+  "http://localhost:5173",
+  "https://event-frontend-six-kappa.vercel.app"
+    ],
+
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+
+    // optionsSuccessStatus: 200,
   })
 );
 
-
-app.options("*", cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-}));
 
 app.use(express.json());
 app.use(bodyParser.json());
