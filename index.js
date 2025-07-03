@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
-const allowedOrigins = ["http://localhost:5173", "https://ems-frontend-liart.vercel.app"];
+const allowedOrigins = ["http://localhost:5173", "https://event-frontend-six-kappa.vercel.app/"];
 
 app.use(
   cors({
