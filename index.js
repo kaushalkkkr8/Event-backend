@@ -12,7 +12,7 @@ app.use(
   cors({
     origin: [
   "http://localhost:5173",
-  "https://event-frontend-six-kappa.vercel.app"
+  "https://event-frontend-six-kappa.vercel.app","https://event-frontend-2.vercel.app/"
     ],
 
     credentials: true,
