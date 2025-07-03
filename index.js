@@ -5,55 +5,14 @@ const bodyParser = require("body-parser");
 dotenv.config();
 const { connection } = require("./db.connect");
 
-
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://event-frontend-six-kappa.vercel.app"
-];
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-
-app.options("*", cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-}));
-
 const app = express();
+
+// const allowedOrigins = ["http://localhost:5173", "https://event-frontend-six-kappa.vercel.app/"];
+
+app.use(cors());
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-app.use(express.json());
 const authRoutes = require("./Routes/authRoute");
 const eventRoutes = require("./Routes/eventRoutes");
 
@@ -65,9 +24,8 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/event", eventRoutes);
 
-
 app.listen(PORT, () => {
   console.log("App is running on port", PORT);
 });
 
-module.exports=app
+module.exports = app;
