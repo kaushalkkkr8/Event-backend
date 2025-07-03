@@ -1,21 +1,6 @@
 const eventModel = require("../Models/eventModel");
 const decodeJwt = require("../Utility/jwtVerify");
 
-// exports.addEvent = async (req, res) => {
-//   try {
-//     const token = req?.headers?.authorization?.split(" ")[1];
-//     if (!token) return res.status(409).json({ status: false, message: "Please send token" });
-//     const user = await decodeJwt(token);
-//     if (!user) return res.status(400).json({ status: false, error: "Unauthorised token" });
-//     const { title, about, description, date, location, attendees } = req.body;
-//     const newEvent = new eventModel({ title, about, description, date, location, createdBy: user?._id, attendees });
-//     await newEvent.save();
-//     res.status(201).json({ status: true, newEvent });
-//   } catch (error) {
-//     console.error("error", error);
-//     return res.status(500).json({ error: "Internal server error" });
-//   }
-// };
 
 exports.addEvent = async (req, res) => {
   try {
@@ -48,7 +33,7 @@ exports.addEvent = async (req, res) => {
       location,
       createdBy: user._id,
       attendees,
-      image, // store single image
+      image, 
     });
 
     await newEvent.save();
@@ -67,22 +52,80 @@ exports.addEvent = async (req, res) => {
   }
 };
 
+// exports.allEvents = async (req, res) => {
+//   try {
+//     const token = req?.headers?.authorization?.split(" ")[1];
+//     if (!token) return res.status(409).json({ status: false, message: "Please send token" });
+//     const user = await decodeJwt(token);
+//     if (!user) return res.status(400).json({ status: false, error: "Unauthorised token" });
+//     const events = await eventModel.find();
+//     if (events?.length === 0) return res.status(404).json({ status: false, error: "data not found" });
+//     return res.status(200).json({ status: true, events });
+//   } catch (error) {
+//     console.error("error", error);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 
-
+// GET /event
 exports.allEvents = async (req, res) => {
   try {
-    const token = req?.headers?.authorization?.split(" ")[1];
+    const token = req.headers?.authorization?.split(" ")[1];
     if (!token) return res.status(409).json({ status: false, message: "Please send token" });
+
     const user = await decodeJwt(token);
-    if (!user) return res.status(400).json({ status: false, error: "Unauthorised token" });
-    const events = await eventModel.find();
-    if (events?.length === 0) return res.status(404).json({ status: false, error: "data not found" });
-    return res.status(200).json({ status: true, events });
+    if (!user) return res.status(401).json({ status: false, message: "Invalid token" });
+
+    const { search = "", date = "", page = 1, limit = 5 } = req.query;
+
+    const query = {};
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { location: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (date) {
+      const selectedDate = new Date(date);
+      const start = new Date(selectedDate.setHours(0, 0, 0, 0));
+      const end = new Date(selectedDate.setHours(23, 59, 59, 999));
+      query.date = { $gte: start, $lte: end };
+    }
+
+    const skip = (page - 1) * limit;
+    const totalEvents = await eventModel.countDocuments(query);
+    const totalPages = Math.ceil(totalEvents / limit);
+
+    const events = await eventModel
+      .find(query)
+      .populate("createdBy", "name email")
+      .populate("attendees", "name email")
+      .sort({ date: 1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    res.status(200).json({
+      status: true,
+      events,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        totalPages,
+        totalEvents,
+      },
+    });
   } catch (error) {
     console.error("error", error);
-    return res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+
+
 exports.eventById = async (req, res) => {
   try {
     const token = req?.headers?.authorization?.split(" ")[1];
@@ -97,7 +140,6 @@ exports.eventById = async (req, res) => {
       .findById(eventId)
       .populate("createdBy", "name email") // populate only selected fields from user
       .populate("attendees", "name email");
-
 
     if (event?.length === 0) return res.status(404).json({ status: false, error: "data not found" });
     return res.status(200).json({ status: true, event });

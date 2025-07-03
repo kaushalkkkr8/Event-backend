@@ -4,7 +4,6 @@ const { addEvent, allEvents, eventById, registerForEvent } = require("../Control
 const { cloudinaryUploader } = require("../Middleware/cloudinaryUploader");
 const router = express.Router();
 
-// router.post("/", eventValidation, addEvent);
 router.post("/",cloudinaryUploader.single("image"), eventValidation, addEvent);
 router.get("/", allEvents);
 router.get("/:id", eventById);

@@ -6,6 +6,11 @@ const eventSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  about: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   description: {
     type: String,
     required: true,
