@@ -8,21 +8,21 @@ const { connection } = require("./db.connect");
 const app = express();
 
 
-// app.use(
-//   cors({
-//     origin: [
-//   "http://localhost:5173",
-//   "https://event-frontend-six-kappa.vercel.app","https://event-frontend-2.vercel.app/"
-//     ],
+app.use(
+  cors({
+    origin: [
+  "http://localhost:5173",
+  "https://event-frontend-six-kappa.vercel.app","https://event-frontend-2.vercel.app/"
+    ],
 
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
 
-//     // optionsSuccessStatus: 200,
-//   })
-// );
-app.use(cors())
+    // optionsSuccessStatus: 200,
+  })
+);
+// app.use(cors())
 
 app.use(express.json());
 app.use(bodyParser.json());
